@@ -18,11 +18,8 @@
  */
 package org.netbeans.modules.dlight.terminal.action;
 
-import java.awt.Dialog;
-import org.netbeans.modules.dlight.terminal.ui.RemoteInfoDialog;
+import java.awt.event.ActionEvent;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
-import org.openide.DialogDescriptor;
-import org.openide.DialogDisplayer;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -34,44 +31,23 @@ import org.openide.util.NbBundle;
  * @author Vladimir Voskresensky
  */
 @ActionID(id = "RemoteTerminalAction", category = "Window")
-@ActionRegistration(iconInMenu = true, displayName = "#RemoteTerminalShortDescr", iconBase = "org/netbeans/modules/dlight/terminal/action/remote_term.png")
+@ActionRegistration(iconInMenu = true, displayName = "#RemoteTerminalShortDescr", iconBase = "org/netbeans/modules/dlight/terminal/action/remote_term.svg")
 @ActionReference(path = TerminalAction.TERMINAL_ACTIONS_PATH, name = "org-netbeans-modules-dlight-terminal-action-RemoteTerminalAction", position = 200)
 public final class RemoteTerminalAction extends TerminalAction {
 
-    private final RemoteInfoDialog cfgPanel;
-
     public RemoteTerminalAction() {
         super("RemoteTerminalAction", NbBundle.getMessage(RemoteTerminalAction.class, "RemoteTerminalShortDescr"), // NOI18N
-                ImageUtilities.loadImageIcon("org/netbeans/modules/dlight/terminal/action/remote_term.png", false)); // NOI18N
-        cfgPanel = new RemoteInfoDialog(System.getProperty("user.name"));
+                ImageUtilities.loadImageIcon("org/netbeans/modules/dlight/terminal/action/remote_term.svg", false)); // NOI18N
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        // Keep the default remote-terminal button, but render the session with JediTerm.
+        new SshTerminalBackendAction().actionPerformed(e);
     }
 
     @Override
     protected ExecutionEnvironment getEnvironment() {
-        String title = NbBundle.getMessage(RemoteTerminalAction.class, "RemoteConnectionTitle");
-        cfgPanel.init();
-        DialogDescriptor dd = new DialogDescriptor(cfgPanel, title, // NOI18N
-                true, DialogDescriptor.OK_CANCEL_OPTION,
-                DialogDescriptor.OK_OPTION, null);
-
-        Dialog cfgDialog = DialogDisplayer.getDefault().createDialog(dd);
-        
-        try {
-            cfgDialog.setVisible(true);
-        } catch (Throwable th) {
-            if (!(th.getCause() instanceof InterruptedException)) {
-                throw new RuntimeException(th);
-            }
-            dd.setValue(DialogDescriptor.CANCEL_OPTION);
-        } finally {
-            cfgDialog.dispose();
-        }
-
-        if (dd.getValue() != DialogDescriptor.OK_OPTION) {
-            return null;
-        }
-
-        final ExecutionEnvironment env = cfgPanel.getExecutionEnvironment();
-        return env;
+        return null;
     }
 }

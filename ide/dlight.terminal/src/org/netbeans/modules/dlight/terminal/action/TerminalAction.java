@@ -20,6 +20,8 @@ package org.netbeans.modules.dlight.terminal.action;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -27,7 +29,6 @@ import org.netbeans.modules.dlight.terminal.ui.TerminalContainerTopComponent;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.openide.util.actions.Presenter;
 import org.openide.windows.IOContainer;
-import org.openide.windows.IOProvider;
 
 /**
  *
@@ -36,6 +37,9 @@ import org.openide.windows.IOProvider;
 public abstract class TerminalAction extends AbstractAction implements Presenter.Toolbar {
     
     public static final String TERMINAL_ACTIONS_PATH = "Terminal/Actions"; // NOI18N
+    private static final Logger LOG = Logger.getLogger(TerminalAction.class.getName());
+    private static final boolean DEBUG_LOCAL_PTY =
+            Boolean.getBoolean("org.netbeans.modules.dlight.terminal.local.debug"); // NOI18N
 
     public TerminalAction(String name, String descr, ImageIcon icon) {
         putValue(Action.NAME, name);
@@ -45,22 +49,28 @@ public abstract class TerminalAction extends AbstractAction implements Presenter
 
     @Override
     public void actionPerformed(final ActionEvent e) {
+        if (DEBUG_LOCAL_PTY) {
+            LOG.log(Level.INFO, "Terminal action invoked: command={0} class={1}",
+                    new Object[]{e == null ? null : e.getActionCommand(), getClass().getName()}); // NOI18N
+        }
         final TerminalContainerTopComponent instance = TerminalContainerTopComponent.findInstance();
         instance.open();
         instance.requestActive();
         final IOContainer ioContainer = instance.getIOContainer();
-        final IOProvider term = IOProvider.get("Terminal"); // NOI18N
-        if (term != null) {
-            final ExecutionEnvironment env = getEnvironment();
-            if (env != null) {
-                TerminalSupportImpl.openTerminalImpl(ioContainer, env.getDisplayName(), env, null, TerminalContainerTopComponent.SILENT_MODE_COMMAND.equals(e.getActionCommand()), true, 0);
-            }
+        final ExecutionEnvironment env = getEnvironment();
+        if (env != null) {
+            JediTermSupport.openTerminal(
+                    ioContainer,
+                    env.getDisplayName(),
+                    env,
+                    null,
+                    TerminalContainerTopComponent.SILENT_MODE_COMMAND.equals(e.getActionCommand()));
         }
     }
 
     @Override
     public Component getToolbarPresenter() {
-        return TerminalSupportImpl.getToolbarPresenter(this);
+        return TerminalUiSupport.getToolbarPresenter(this);
     }
 
     protected abstract ExecutionEnvironment getEnvironment();

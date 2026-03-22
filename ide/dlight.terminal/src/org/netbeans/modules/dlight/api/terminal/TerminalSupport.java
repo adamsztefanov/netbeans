@@ -20,7 +20,8 @@ package org.netbeans.modules.dlight.api.terminal;
 
 import java.awt.Component;
 import javax.swing.Action;
-import org.netbeans.modules.dlight.terminal.action.TerminalSupportImpl;
+import org.netbeans.modules.dlight.terminal.action.JediTermSupport;
+import org.netbeans.modules.dlight.terminal.action.TerminalUiSupport;
 import org.netbeans.modules.dlight.terminal.ui.TerminalContainerTopComponent;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.openide.windows.IOContainer;
@@ -42,7 +43,7 @@ public final class TerminalSupport {
      * @param env
      */
     public static void openTerminal(IOContainer ioContainer, String termTitle, ExecutionEnvironment env) {
-        TerminalSupportImpl.openTerminalImpl(ioContainer, termTitle, env, null, false, false, 0);
+        JediTermSupport.openTerminal(ioContainer, termTitle, env, null, false);
     }
 
     /**
@@ -53,7 +54,7 @@ public final class TerminalSupport {
      * @param env
      */
     public static void openTerminal(IOContainer ioContainer, String termTitle, ExecutionEnvironment env, String dir) {
-        TerminalSupportImpl.openTerminalImpl(ioContainer, termTitle, env, dir, false, false, 0);
+        JediTermSupport.openTerminal(ioContainer, termTitle, env, dir, false);
     }
 
     /**
@@ -79,7 +80,7 @@ public final class TerminalSupport {
             instance.open();
             instance.requestActive();
             IOContainer ioContainer = instance.getIOContainer();
-            TerminalSupportImpl.openTerminalImpl(ioContainer, termTitle, env, dir, false, pwdFlag, 0);
+            JediTermSupport.openTerminal(ioContainer, termTitle, env, dir, false);
         } finally {
             instance.putClientProperty(TerminalContainerTopComponent.AUTO_OPEN_LOCAL_PROPERTY, prev);
         }
@@ -100,13 +101,13 @@ public final class TerminalSupport {
             instance.open();
             instance.requestActive();
             IOContainer ioContainer = instance.getIOContainer();
-            TerminalSupportImpl.openTerminalImpl(ioContainer, termTitle, env, dir, false, pwdFlag, id);
+            JediTermSupport.openTerminal(ioContainer, termTitle, env, dir, false);
         } finally {
             instance.putClientProperty(TerminalContainerTopComponent.AUTO_OPEN_LOCAL_PROPERTY, prev);
         }
     }
 
     public static Component getToolbarPresenter(Action action) {
-        return TerminalSupportImpl.getToolbarPresenter(action);
+        return TerminalUiSupport.getToolbarPresenter(action);
     }
 }

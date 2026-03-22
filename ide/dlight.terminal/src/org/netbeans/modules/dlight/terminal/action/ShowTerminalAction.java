@@ -31,12 +31,12 @@ import org.openide.awt.ActionRegistration;
  * @author Vladimir Voskresensky
  */
 @ActionID(id = "ShowTerminalTCAction", category = "Window")
-@ActionRegistration(iconInMenu = true, displayName = "#CTL_ShowTerminalAction", iconBase = "org/netbeans/modules/dlight/terminal/action/local_term.png")
+@ActionRegistration(iconInMenu = true, displayName = "#CTL_ShowTerminalAction", iconBase = "org/netbeans/modules/dlight/terminal/action/local_term.svg")
 @ActionReference(path = "Menu/Window/Tools", name = "org-netbeans-modules-dlight-terminal-action-ShowTerminal", position = 900)
 public class ShowTerminalAction implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
-        final TerminalContainerTopComponent instance = TerminalContainerTopComponent.findInstance();
+        TerminalContainerTopComponent instance = TerminalContainerTopComponent.findInstance();
         instance.open();
         instance.requestActive();
     }

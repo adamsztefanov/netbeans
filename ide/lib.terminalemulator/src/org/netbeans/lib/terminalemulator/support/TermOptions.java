@@ -20,11 +20,15 @@ package org.netbeans.lib.terminalemulator.support;
 
 import java.awt.Font;
 import java.awt.Color;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.prefs.Preferences;
 import javax.swing.UIManager;
 
 import java.beans.PropertyChangeSupport;
 import java.beans.PropertyChangeListener;
+import org.openide.util.Utilities;
 
 /**
  * Singleton "bean" to hold Term option properties.
@@ -97,7 +101,7 @@ public final class TermOptions {
         lineWrapDefault = true;
         ignoreKeymapDefault = false;
 	altSendsEscapeDefault = true;
-        shellPathDefault = ""; // NOI18N
+        shellPathDefault = defaultShellPath(); // NOI18N
         
         fontSize = fontSizeDefault;
         font = fontDefault;
@@ -150,6 +154,26 @@ public final class TermOptions {
 	    color = UIManager.getColor("textHighlight");// NOI18N
 	}
         return color;
+    }
+
+    private static String defaultShellPath() {
+        if (!Utilities.isWindows()) {
+            return ""; // NOI18N
+        }
+
+        String[] candidates = new String[] {
+            "C:\\Program Files\\Git\\bin\\bash.exe", // NOI18N
+            "C:\\Program Files\\Git\\usr\\bin\\bash.exe", // NOI18N
+            "C:\\Program Files\\PowerShell\\7\\pwsh.exe", // NOI18N
+            "C:\\Windows\\System32\\cmd.exe", // NOI18N
+        };
+        for (String candidate : candidates) {
+            Path path = Paths.get(candidate);
+            if (Files.isRegularFile(path)) {
+                return candidate;
+            }
+        }
+        return ""; // NOI18N
     }
 
     public static synchronized TermOptions getDefault(Preferences prefs) {
