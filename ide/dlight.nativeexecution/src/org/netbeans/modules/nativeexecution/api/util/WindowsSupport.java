@@ -191,6 +191,24 @@ public final class WindowsSupport {
             }
         }
 
+        // 3. Try PowerShell
+        if (paths != null) {
+            for (String path : paths.split(";")) { // NOI18N
+                File pwsh = new File(path, "pwsh.exe"); // NOI18N
+                if (pwsh.exists() && pwsh.canRead()) {
+                    return new Shell(ShellType.POWERSHELL, pwsh.getAbsolutePath(), pwsh.getParentFile());
+                }
+            }
+        }
+
+        String systemRoot = System.getenv("SystemRoot");
+        if (systemRoot != null) {
+            File ps = new File(systemRoot, "System32\\WindowsPowerShell\\v1.0\\powershell.exe"); // NOI18N
+            if (ps.exists() && ps.canRead()) {
+                return new Shell(ShellType.POWERSHELL, ps.getAbsolutePath(), ps.getParentFile());
+            }
+        }
+
         // if we found some "broken" cygwin - it will be in candidate...
         // or it will be null if nothing found
         return candidate;

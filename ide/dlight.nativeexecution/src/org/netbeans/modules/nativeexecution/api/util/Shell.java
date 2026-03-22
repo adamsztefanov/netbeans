@@ -57,6 +57,7 @@ public class Shell {
         NO_SHELL,
         CYGWIN,
         MSYS,
+        POWERSHELL,
         UNKNOWN;
 
         public PathType toPathType() {

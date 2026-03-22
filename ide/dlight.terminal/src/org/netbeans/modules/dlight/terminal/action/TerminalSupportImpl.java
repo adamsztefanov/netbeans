@@ -73,6 +73,8 @@ import org.openide.windows.OutputWriter;
 
 import static org.netbeans.lib.terminalemulator.Term.ExternalCommandsConstants.*;
 import org.netbeans.modules.nativeexecution.api.util.MacroMap;
+import org.netbeans.lib.terminalemulator.support.TermOptions;
+import org.openide.util.NbPreferences;
 
 /**
  *
@@ -319,6 +321,11 @@ public final class TerminalSupportImpl {
                         }
 
                         String shell = hostInfo.getLoginShell();
+                        TermOptions options = TermOptions.getDefault(NbPreferences.forModule(TermOptions.class));
+                        String customShell = options.getShellPath();
+                        if (customShell != null && !customShell.isEmpty()) {
+                            shell = customShell;
+                        }
                         if (expandedDir != null) {
                             npb.setWorkingDirectory(expandedDir);
                         }
@@ -326,6 +333,8 @@ public final class TerminalSupportImpl {
                         npb.setExecutable(shell);
                         if (shell.endsWith("bash") || shell.endsWith("bash.exe")) { // NOI18N
                             npb.setArguments("--login"); // NOI18N
+                        } else if (shell.endsWith("powershell.exe") || shell.endsWith("pwsh.exe")) { // NOI18N
+                             npb.setArguments("-NoLogo"); // NOI18N
                         }
                         
                         NativeExecutionDescriptor descr;

@@ -61,6 +61,7 @@ public final class TermOptions {
     private boolean lineWrapDefault;
     private boolean ignoreKeymapDefault;
     private boolean altSendsEscapeDefault;
+    private String shellPathDefault;
 
     // In case settings get shared uniqueify the key names with a prefix:
     private static final String PREFIX = "term.";	// NOI18N
@@ -96,6 +97,7 @@ public final class TermOptions {
         lineWrapDefault = true;
         ignoreKeymapDefault = false;
 	altSendsEscapeDefault = true;
+        shellPathDefault = ""; // NOI18N
         
         fontSize = fontSizeDefault;
         font = fontDefault;
@@ -111,6 +113,7 @@ public final class TermOptions {
 	lineWrap = lineWrapDefault;
         ignoreKeymap = ignoreKeymapDefault;
 	altSendsEscape = altSendsEscapeDefault;
+        shellPath = shellPathDefault;
         markDirty();
     }
 
@@ -186,6 +189,7 @@ public final class TermOptions {
 	this.lineWrap = that.lineWrap;
         this.ignoreKeymap = that.ignoreKeymap;
         this.altSendsEscape = that.altSendsEscape;
+        this.shellPath = that.shellPath;
 	this.dirty = false;
         
 	this.fontDefault= that.fontDefault;
@@ -202,6 +206,7 @@ public final class TermOptions {
 	this.lineWrapDefault = that.lineWrapDefault;
         this.ignoreKeymapDefault = that.ignoreKeymapDefault;
         this.altSendsEscapeDefault = that.altSendsEscapeDefault;
+        this.shellPathDefault = that.shellPathDefault;
 	pcs.firePropertyChange(null, null, null);
     }
 
@@ -253,6 +258,7 @@ public final class TermOptions {
 				    ignoreKeymap);
         altSendsEscape = prefs.getBoolean(PREFIX + PROP_ALT_SENDS_ESCAPE,
 				    altSendsEscape);
+        shellPath = prefs.get(PREFIX + PROP_SHELL_PATH, shellPath);
 
 	font = new Font(fontFamily, fontStyle, fontSize);
 
@@ -282,6 +288,7 @@ public final class TermOptions {
 	prefs.putBoolean(PREFIX + PROP_LINE_WRAP, lineWrap);
         prefs.putBoolean(PREFIX + PROP_IGNORE_KEYMAP, ignoreKeymap);
         prefs.putBoolean(PREFIX + PROP_ALT_SENDS_ESCAPE, altSendsEscape);
+        prefs.put(PREFIX + PROP_SHELL_PATH, shellPath);
     }
 
 
@@ -512,6 +519,22 @@ public final class TermOptions {
         markDirty();
     } 
 
+    /*
+     * Shell path property
+     */
+    private static final String PROP_SHELL_PATH = "shellPath"; // NOI18N
+
+    private String shellPath;
+
+    public String getShellPath() {
+        return shellPath;
+    }
+
+    public void setShellPath(String shellPath) {
+        this.shellPath = shellPath;
+        markDirty();
+    }
+
     private void markDirty() {
         pcs.firePropertyChange(null, null, null);
         if (preferences == null) {
@@ -532,6 +555,7 @@ public final class TermOptions {
                 || preferences.getBoolean(PREFIX + PROP_SCROLL_ON_OUTPUT, scrollOnOutputDefault) != scrollOnOutput
                 || preferences.getBoolean(PREFIX + PROP_LINE_WRAP, lineWrapDefault) != lineWrap
                 || preferences.getBoolean(PREFIX + PROP_IGNORE_KEYMAP, ignoreKeymapDefault) != ignoreKeymap
-                || preferences.getBoolean(PREFIX + PROP_ALT_SENDS_ESCAPE, altSendsEscapeDefault) != altSendsEscape;
+                || preferences.getBoolean(PREFIX + PROP_ALT_SENDS_ESCAPE, altSendsEscapeDefault) != altSendsEscape
+                || !preferences.get(PREFIX + PROP_SHELL_PATH, shellPathDefault).equals(shellPath);
     }
 }

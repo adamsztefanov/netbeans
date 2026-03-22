@@ -52,7 +52,7 @@ public final class TermAdvancedOption extends OptionsPanelController {
      * Preferences in which we store term settings.
      */
     private static final Preferences prefs =
-	NbPreferences.forModule(TermAdvancedOption.class);
+	NbPreferences.forModule(TermOptions.class);
 
     private void reset() {
 	termOptions = TermOptions.getDefault(prefs);

@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.mauz.netbeans.codex
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Localizing-Bundle: org/mauz/netbeans/codex/Bundle.properties

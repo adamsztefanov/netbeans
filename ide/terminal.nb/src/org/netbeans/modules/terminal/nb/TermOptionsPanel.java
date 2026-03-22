@@ -107,6 +107,30 @@ public final class TermOptionsPanel extends JPanel {
 		changingSelectByWordText = false;
 	    }
 	});
+
+        shellPathTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                textChangeActionPerformed();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                textChangeActionPerformed();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // ignore
+            }
+
+            private void textChangeActionPerformed() {
+                if (inApplyingModel) {
+                    return;
+                }
+                termOptions.setShellPath(shellPathTextField.getText());
+            }
+        });
     }
     
     /**
@@ -136,6 +160,8 @@ public final class TermOptionsPanel extends JPanel {
         tabSizeSpinner = new javax.swing.JSpinner();
         selectByWordLabel = new javax.swing.JLabel();
         selectByWordTextField = new javax.swing.JTextField();
+        shellPathLabel = new javax.swing.JLabel();
+        shellPathTextField = new javax.swing.JTextField();
         clickToTypeCheckBox = new javax.swing.JCheckBox();
         ignoreKeymapCheckBox = new javax.swing.JCheckBox();
         lineWrapCheckBox = new javax.swing.JCheckBox();
@@ -221,6 +247,10 @@ public final class TermOptionsPanel extends JPanel {
 
         selectByWordTextField.setText(org.openide.util.NbBundle.getMessage(TermOptionsPanel.class, "TermOptionsPanel.selectByWordTextField.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(shellPathLabel, org.openide.util.NbBundle.getMessage(TermOptionsPanel.class, "TermOptionsPanel.shellPathLabel.text")); // NOI18N
+
+        shellPathTextField.setText(org.openide.util.NbBundle.getMessage(TermOptionsPanel.class, "TermOptionsPanel.shellPathTextField.text")); // NOI18N
+
         clickToTypeCheckBox.setSelected(true);
         org.openide.awt.Mnemonics.setLocalizedText(clickToTypeCheckBox, org.openide.util.NbBundle.getMessage(TermOptionsPanel.class, "TermOptionsPanel.clickToTypeCheckBox.text")); // NOI18N
         clickToTypeCheckBox.addActionListener(new java.awt.event.ActionListener() {
@@ -291,6 +321,7 @@ public final class TermOptionsPanel extends JPanel {
                     .addComponent(backgroundComboBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(selectionComboBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(selectByWordTextField, javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(shellPathTextField, javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(fontText, javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -306,7 +337,8 @@ public final class TermOptionsPanel extends JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(tabSizeLabel)
                     .addComponent(previewLabel)
-                    .addComponent(selectByWordLabel))
+                    .addComponent(selectByWordLabel)
+                    .addComponent(shellPathLabel))
                 .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
@@ -363,6 +395,10 @@ public final class TermOptionsPanel extends JPanel {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(selectByWordLabel)
                     .addComponent(selectByWordTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(shellPathLabel)
+                    .addComponent(shellPathTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(clickToTypeCheckBox)
@@ -538,6 +574,8 @@ public final class TermOptionsPanel extends JPanel {
     private javax.swing.JCheckBox scrollOnOutputCheckBox;
     private javax.swing.JLabel selectByWordLabel;
     private javax.swing.JTextField selectByWordTextField;
+    private javax.swing.JLabel shellPathLabel;
+    private javax.swing.JTextField shellPathTextField;
     private org.openide.awt.ColorComboBox selectionComboBox;
     private javax.swing.JLabel selectionLabel;
     private javax.swing.JLabel tabSizeLabel;
@@ -581,6 +619,7 @@ public final class TermOptionsPanel extends JPanel {
 	    if (!changingSelectByWordText) {
 		selectByWordTextField.setText(termOptions.getSelectByWordDelimiters());
 	    }
+            shellPathTextField.setText(termOptions.getShellPath());
 	    clickToTypeCheckBox.setSelected(termOptions.getClickToType());
 	    scrollOnInputCheckBox.setSelected(termOptions.getScrollOnInput());
 	    scrollOnOutputCheckBox.setSelected(termOptions.getScrollOnOutput());
