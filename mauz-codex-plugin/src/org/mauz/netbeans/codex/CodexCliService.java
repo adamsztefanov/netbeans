@@ -32,7 +32,7 @@ final class CodexCliService {
             Files.writeString(tempFile, invocation.selectedCode(), StandardCharsets.UTF_8);
 
             List<String> command = new ArrayList<>();
-            command.add("codex");
+            command.add("C:\\Users\\mauz\\AppData\\Roaming\\npm\\codex.cmd");
             command.add("patch");
             command.add(tempFile.toAbsolutePath().toString());
             command.add("--instruction");
