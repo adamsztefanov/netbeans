@@ -51,6 +51,9 @@ public final class OpenInEditorAction implements Runnable {
     }
 
     public static void post(String filePath, int lineNumber) {
+        if (filePath == null || filePath.trim().isEmpty()) {
+            return;
+        }
         try {
             RP.post(new OpenInEditorAction(Utilities.toURI(new File(filePath)).toURL(), lineNumber)); //NOI18N
         } catch (MalformedURLException ex) {

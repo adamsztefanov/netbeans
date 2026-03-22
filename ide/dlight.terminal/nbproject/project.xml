@@ -76,6 +76,24 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.libs.jna</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>2.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.jna.platform</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>2.0</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.openide.awt</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -172,6 +190,46 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <class-path-extension>
+                <runtime-relative-path>ext/slf4j-api-1.7.36.jar</runtime-relative-path>
+                <binary-origin>external-libs/slf4j-api-1.7.36.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/eddsa-0.3.0.jar</runtime-relative-path>
+                <binary-origin>external-libs/eddsa-0.3.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sshd-common-2.12.1.jar</runtime-relative-path>
+                <binary-origin>external-libs/sshd-common-2.12.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sshd-core-2.12.1.jar</runtime-relative-path>
+                <binary-origin>external-libs/sshd-core-2.12.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sshd-sftp-2.12.1.jar</runtime-relative-path>
+                <binary-origin>external-libs/sshd-sftp-2.12.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jediterm-core-3.54.jar</runtime-relative-path>
+                <binary-origin>external-libs/jediterm-core-3.54.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/jediterm-ui-3.54.jar</runtime-relative-path>
+                <binary-origin>external-libs/jediterm-ui-3.54.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/pty4j-0.13.4.jar</runtime-relative-path>
+                <binary-origin>external-libs/pty4j-0.13.4.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/kotlin-stdlib-2.1.21.jar</runtime-relative-path>
+                <binary-origin>external-libs/kotlin-stdlib-2.1.21.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/annotations-24.0.1.jar</runtime-relative-path>
+                <binary-origin>external-libs/annotations-24.0.1.jar</binary-origin>
+            </class-path-extension>
             <friend-packages>
                 <friend>com.oracle.tools.ide.projectless.impl</friend>
                 <friend>com.sun.tools.cnd.accessor</friend>

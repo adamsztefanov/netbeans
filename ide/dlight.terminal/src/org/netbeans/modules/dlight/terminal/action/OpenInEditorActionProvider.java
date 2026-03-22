@@ -52,32 +52,52 @@ public class OpenInEditorActionProvider extends ExternalCommandActionProvider {
     public void handle(String command, Lookup lookup) {
 
         command = command.substring(Term.ExternalCommandsConstants.IDE_OPEN.length() + 1).trim();
+        if (command.isEmpty()) {
+            return;
+        }
 
         List<String> paths = new ArrayList<String>();
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(command); //NOI18N
         while (m.find()) {
-            paths.add(m.group(1));
+            String token = normalizeToken(m.group(1));
+            if (!token.isEmpty()) {
+                paths.add(token);
+            }
+        }
+        if (paths.isEmpty()) {
+            return;
         }
 
         for (String path : paths) {
             int lineNumber = -1;
             String filePath = path;
 
-            int colonIdx = command.lastIndexOf(':');
+            int colonIdx = path.lastIndexOf(':');
             // Shortest file path
             if (colonIdx > 2) {
                 try {
-                    lineNumber = Integer.parseInt(command.substring(colonIdx + 1));
-                    filePath = command.substring(0, colonIdx);
+                    lineNumber = Integer.parseInt(path.substring(colonIdx + 1));
+                    filePath = path.substring(0, colonIdx);
                 } catch (NumberFormatException x) {
+                    filePath = path;
                 }
             }
 
-            if (!filePath.startsWith("/") && !filePath.startsWith("~")) { //NOI18N
-                filePath = lookup.lookup(String.class) + "/" + filePath; //NOI18N
+            filePath = normalizePath(filePath);
+            if (filePath == null) {
+                continue;
             }
 
-            Object key = lookup.lookup(Term.class).getClientProperty(Term.ExternalCommandsConstants.EXECUTION_ENV_PROPERTY_KEY);
+            if (!filePath.startsWith("/") && !filePath.startsWith("~")) { //NOI18N
+                String basePath = normalizePath(lookup.lookup(String.class));
+                if (basePath != null) {
+                    filePath = basePath + "/" + filePath; // NOI18N
+                }
+            }
+
+            Term term = lookup.lookup(Term.class);
+            Object key = term == null ? null
+                    : term.getClientProperty(Term.ExternalCommandsConstants.EXECUTION_ENV_PROPERTY_KEY);
             URL url = null;
             boolean remoteShell = false;
             try {
@@ -101,11 +121,36 @@ public class OpenInEditorActionProvider extends ExternalCommandActionProvider {
                     // NetBeans only supports shells running via cygwin/msys
                     // the paths then need to be converted to basic windows
                     // paths
-                    filePath = WindowsSupport.getInstance().convertToWindowsPath(filePath);
+                    String windowsPath = WindowsSupport.getInstance().convertToWindowsPath(filePath);
+                    if (windowsPath != null && !windowsPath.trim().isEmpty()) {
+                        filePath = windowsPath;
+                    }
                 }
-                OpenInEditorAction.post(filePath, lineNumber);
+                filePath = normalizePath(filePath);
+                if (filePath != null) {
+                    OpenInEditorAction.post(filePath, lineNumber);
+                }
             }
         }
+    }
+
+    private static String normalizeToken(String value) {
+        if (value == null) {
+            return ""; // NOI18N
+        }
+        String trimmed = value.trim();
+        if (trimmed.length() >= 2 && trimmed.startsWith("\"") && trimmed.endsWith("\"")) { // NOI18N
+            trimmed = trimmed.substring(1, trimmed.length() - 1).trim();
+        }
+        return trimmed;
+    }
+
+    private static String normalizePath(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
 }

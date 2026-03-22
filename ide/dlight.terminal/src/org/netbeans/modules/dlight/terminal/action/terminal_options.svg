@@ -20,15 +20,8 @@
 
 -->
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" version="1.1" viewBox="0 0 16 16">
-  <defs>
-    <linearGradient id="screen" x1="3" x2="13" y1="4" y2="12" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#1f2937"/>
-      <stop offset="1" stop-color="#0f172a"/>
-    </linearGradient>
-  </defs>
-  <rect x="1" y="2" width="14" height="11" rx="2" ry="2" fill="#d7dde5"/>
-  <rect x="2" y="3" width="12" height="9" rx="1.5" ry="1.5" fill="url(#screen)"/>
-  <path d="M5 5.5 3.75 6.75 5 8" fill="none" stroke="#73e0a9" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.4"/>
-  <path d="M7 9h3" fill="none" stroke="#f8fafc" stroke-linecap="round" stroke-width="1.4"/>
-  <rect x="4.5" y="13.5" width="7" height="1" rx=".5" ry=".5" fill="#94a3b8"/>
+  <circle cx="8" cy="8" r="5" fill="#fff4d6"/>
+  <path d="M8 1.75 9.15 2l.45 1.2 1.22.42.98-.66.88.78-.58 1.02.56 1.12 1.22.38v1.1l-1.22.38-.56 1.12.58 1.02-.88.78-.98-.66-1.22.42-.45 1.2L8 14.25l-1.15-.25-.45-1.2-1.22-.42-.98.66-.88-.78.58-1.02-.56-1.12L2.12 8.7V7.6l1.22-.38.56-1.12-.58-1.02.88-.78.98.66 1.22-.42.45-1.2Z" fill="#d89b00"/>
+  <circle cx="8" cy="8" r="2.1" fill="#fff"/>
+  <circle cx="8" cy="8" r="1.15" fill="#d89b00"/>
 </svg>
