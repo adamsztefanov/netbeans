@@ -21,19 +21,22 @@ final class CodexCliService {
     private CodexCliService() {
     }
 
-    static CodexCliResult runPatch(String selectedCode) {
+    static CodexCliResult runPatch(AskMauzCodexAction.EditorInvocation invocation) {
         Path tempFile = null;
         try {
             // Codex is invoked on a temporary file so the CLI can operate on a real path.
-            tempFile = Files.createTempFile("mauz-codex-selection-", ".txt");
-            Files.writeString(tempFile, selectedCode, StandardCharsets.UTF_8);
+            tempFile = Files.createTempFile(
+                    "mauz-codex-selection-",
+                    extensionOf(invocation.originalFile().getFileName().toString())
+            );
+            Files.writeString(tempFile, invocation.selectedCode(), StandardCharsets.UTF_8);
 
             List<String> command = new ArrayList<>();
             command.add("codex");
             command.add("patch");
             command.add(tempFile.toAbsolutePath().toString());
             command.add("--instruction");
-            command.add(DEFAULT_INSTRUCTION);
+            command.add(buildInstruction(invocation));
 
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             processBuilder.redirectErrorStream(true);
@@ -75,6 +78,17 @@ final class CodexCliService {
         }
     }
 
+    private static String buildInstruction(AskMauzCodexAction.EditorInvocation invocation) {
+        return DEFAULT_INSTRUCTION
+                + " The selected code came from " + invocation.originalFile().getFileName() + "."
+                + " Keep the patch scoped to the selected region.";
+    }
+
+    private static String extensionOf(String fileName) {
+        int index = fileName.lastIndexOf('.');
+        return index >= 0 ? fileName.substring(index) : ".txt";
+    }
+
     static final class CodexCliResult {
 
         private final List<String> command;
@@ -114,6 +128,14 @@ final class CodexCliService {
             }
             sb.append('\n');
             return sb.toString();
+        }
+
+        boolean canApplyPatch() {
+            return error == null && exitCode == 0 && !output.isBlank();
+        }
+
+        String patchText() {
+            return output;
         }
     }
 }

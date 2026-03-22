@@ -1,6 +1,6 @@
 # MAUZ Codex NetBeans Plugin
 
-Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` action to the editor popup menu and shows the captured `codex patch` output in a tool window.
+Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` action to the editor popup menu, shows the captured `codex patch` output in a tool window, and can apply the resulting patch back to the original file.
 
 ## Prerequisites
 
@@ -14,6 +14,7 @@ Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` acti
 1. In NetBeans, choose `File > Open Project` and open [`mauz-codex-plugin`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin).
 2. If prompted, assign a NetBeans Platform. The project ships as a standalone module with `nbproject/platform.properties`.
 3. Right-click the project and choose `Build`.
+4. To create an installable plugin package, run `ant nbm` or `ant package-nbm`.
 
 ## Run In Sandbox
 
@@ -23,9 +24,25 @@ Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` acti
 4. Select some code in the editor.
 5. Right-click and choose `Ask MAUZ Codex`.
 6. Inspect the `MAUZ Codex Output` window for the CLI patch output or diagnostics.
+7. Click `Apply Patch` in the tool window to write the patched selection back to the original file.
 
 ## Notes
 
 - The action is registered in the editor popup using `@ActionID`, `@ActionRegistration`, and `@ActionReference(path = "Editors/Popup")`.
 - The tool window is a `TopComponent` registered in the `output` mode.
 - The CLI command is built in [`CodexCliService.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/org/mauz/netbeans/codex/CodexCliService.java). If your local `codex patch` syntax differs, adjust that command list there.
+
+## Example Usage
+
+1. Open a Java source file such as `src/main/java/com/example/HelloService.java`.
+2. Select a method body, for example:
+
+```java
+public String greet(String name) {
+    return "Hello " + name;
+}
+```
+
+3. Right-click the selection and choose `Ask MAUZ Codex`.
+4. Review the unified diff in `MAUZ Codex Output`.
+5. Click `Apply Patch` to replace that selected region in `HelloService.java`.

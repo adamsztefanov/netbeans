@@ -2,4 +2,6 @@
 <project name="mauz-codex-plugin" default="build" basedir=".">
     <description>Builds, tests, and runs the MAUZ Codex NetBeans plugin.</description>
     <import file="nbproject/build-impl.xml"/>
+
+    <target name="package-nbm" depends="nbm" description="Build an installable NetBeans NBM package."/>
 </project>
