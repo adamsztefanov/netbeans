@@ -32,6 +32,35 @@ Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` acti
 - The tool window is a `TopComponent` registered in the `output` mode.
 - The CLI command is built in [`CodexCliService.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/org/mauz/netbeans/codex/CodexCliService.java). If your local `codex exec` syntax or wrapper path differs, adjust that command list there.
 
+## SSH Terminal Backend (MINA SSHD)
+
+This module now includes transport-agnostic terminal backend classes:
+
+- [`TerminalBackend.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/TerminalBackend.java)
+- [`TerminalBackendFactory.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/TerminalBackendFactory.java)
+- [`SshConnectionConfig.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/ssh/SshConnectionConfig.java)
+- [`SshTerminalBackend.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/ssh/SshTerminalBackend.java)
+- [`LocalConPtyConfig.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/local/LocalConPtyConfig.java)
+- [`LocalConPtyBackend.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/local/LocalConPtyBackend.java)
+
+`SshTerminalBackend` uses Apache MINA SSHD shell channel + PTY (`TERM=xterm-256color`) and supports:
+
+- password authentication
+- raw byte streaming both directions
+- SSH window-change on resize
+- defensive cleanup of channel/session/client
+- I/O telemetry via [`BackendIoMetrics.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/mauz/terminal/BackendIoMetrics.java)
+
+### Integration Hook (NetBeans Terminal UI)
+
+To wire this into NetBeans terminal tabs, integrate from the terminal modules (for example `ide/dlight.terminal`) where friend API access is available:
+
+1. Create backend with `TerminalBackendFactory#createSshBackend(...)`.
+2. Connect terminal input bytes to `backend.write(...)`.
+3. Route backend output listener bytes to terminal renderer input stream.
+4. On terminal size change, call `backend.resize(cols, rows, pixelWidth, pixelHeight)`.
+5. On tab close/process close, call `backend.close()`.
+
 ## Example Usage
 
 1. Open a Java source file such as `src/main/java/com/example/HelloService.java`.
@@ -46,3 +75,8 @@ public String greet(String name) {
 3. Right-click the selection and choose `Ask MAUZ Codex`.
 4. Review the unified diff in `MAUZ Codex Output`.
 5. Click `Apply Patch` to replace that selected region in `HelloService.java`.
+
+
+```powershell
+Get-ChildItem Env:
+```

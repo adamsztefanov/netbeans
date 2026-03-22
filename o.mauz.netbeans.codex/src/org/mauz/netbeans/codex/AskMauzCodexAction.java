@@ -89,7 +89,7 @@ public final class AskMauzCodexAction extends AbstractAction implements ContextA
         StatusDisplayer.getDefault().setStatusText(Bundle.MSG_Running());
 
         RP.post(() -> {
-            CodexCliService.CodexCliResult result = CodexCliService.runPatch(invocation);
+            CodexCliService.CodexCliResult result = CodexCliService.runEdit(invocation);
             javax.swing.SwingUtilities.invokeLater(() -> {
                 outputWindow.showResult(invocation, result);
                 outputWindow.requestActive();

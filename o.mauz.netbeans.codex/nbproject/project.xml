@@ -102,6 +102,22 @@
                 </dependency>
             </module-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/slf4j-api-1.7.36.jar</runtime-relative-path>
+                <binary-origin>../extide/gradle/netbeans-gradle-tooling/build/gradle-libs/slf4j-api-1.7.36.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/eddsa-0.3.0.jar</runtime-relative-path>
+                <binary-origin>../extide/gradle/netbeans-gradle-tooling/build/gradle-libs/eddsa-0.3.0.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sshd-common-2.12.1.jar</runtime-relative-path>
+                <binary-origin>../extide/gradle/netbeans-gradle-tooling/build/gradle-libs/sshd-common-2.12.1.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/sshd-core-2.12.1.jar</runtime-relative-path>
+                <binary-origin>../extide/gradle/netbeans-gradle-tooling/build/gradle-libs/sshd-core-2.12.1.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

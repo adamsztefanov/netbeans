@@ -22,8 +22,8 @@ import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
 /**
- * Displays Codex output and can apply the generated patch back to the original
- * file that the editor selection came from.
+ * Displays Codex output and can apply the generated file replacement back to
+ * the original file that the editor selection came from.
  */
 @TopComponent.Description(
         preferredID = CodexPatchTopComponent.PREFERRED_ID,
@@ -49,10 +49,10 @@ import org.openide.windows.WindowManager;
     "CTL_CodexPatchTopComponent=MAUZ Codex Output",
     "CTL_CodexPatchTopComponentAction=MAUZ Codex Output",
     "HINT_CodexPatchTopComponent=Displays the output returned by the Codex CLI",
-    "MSG_NoPatch=There is no successful Codex patch to apply.",
-    "MSG_PatchApplied=Patch applied to the original file.",
+    "MSG_NoPatch=There are no successful Codex changes to apply.",
+    "MSG_PatchApplied=Changes applied to the original file.",
     "# {0} - patch application failure details",
-    "MSG_PatchFailed=Failed to apply the patch:\n\n{0}"
+    "MSG_PatchFailed=Failed to apply the changes:\n\n{0}"
 })
 public final class CodexPatchTopComponent extends TopComponent {
 
@@ -61,7 +61,7 @@ public final class CodexPatchTopComponent extends TopComponent {
     private static final RequestProcessor RP = new RequestProcessor(CodexPatchTopComponent.class);
 
     private final JTextArea outputArea = new JTextArea();
-    private final JButton applyPatchButton = new JButton("Apply Patch");
+    private final JButton applyPatchButton = new JButton("Apply Changes");
     private final JLabel targetFileLabel = new JLabel("No file selected");
 
     private PatchSession currentSession;
@@ -103,14 +103,14 @@ public final class CodexPatchTopComponent extends TopComponent {
 
     void showResult(AskMauzCodexAction.EditorInvocation invocation, CodexCliService.CodexCliResult result) {
         currentSession = new PatchSession(invocation, result);
-        applyPatchButton.setEnabled(result.canApplyPatch());
+        applyPatchButton.setEnabled(result.canReplaceBuffer());
         targetFileLabel.setText(invocation.originalFile().toString());
         setOutput(result.formatForDisplay());
     }
 
     private void applyPatch() {
         PatchSession session = currentSession;
-        if (session == null || !session.result().canApplyPatch()) {
+        if (session == null || !session.result().canReplaceBuffer()) {
             notifyUser(Bundle.MSG_NoPatch(), NotifyDescriptor.WARNING_MESSAGE);
             return;
         }
@@ -118,14 +118,10 @@ public final class CodexPatchTopComponent extends TopComponent {
         applyPatchButton.setEnabled(false);
         RP.post(() -> {
             try {
-                String patchedSelection = PatchApplier.applyToSelection(
-                        session.invocation().selectedCode(),
-                        session.result().patchText()
-                );
-                writeBackToOriginalFile(session, patchedSelection);
+                writeBackToOriginalFile(session);
                 SwingUtilities.invokeLater(() -> {
                     setOutput(session.result().formatForDisplay()
-                            + "\nApplied patch to: " + session.invocation().originalFile() + '\n');
+                            + "\nApplied changes to: " + session.invocation().originalFile() + '\n');
                     applyPatchButton.setEnabled(true);
                     notifyUser(Bundle.MSG_PatchApplied(), NotifyDescriptor.INFORMATION_MESSAGE);
                 });
@@ -138,16 +134,12 @@ public final class CodexPatchTopComponent extends TopComponent {
         });
     }
 
-    private void writeBackToOriginalFile(PatchSession session, String patchedSelection) throws IOException {
-        String fileText = Files.readString(session.invocation().originalFile(), StandardCharsets.UTF_8);
-        String updatedFile = PatchApplier.replaceSelectionInFile(
-                fileText,
-                session.invocation().selectedCode(),
-                patchedSelection,
-                session.invocation().selectionStart(),
-                session.invocation().selectionEnd()
+    private void writeBackToOriginalFile(PatchSession session) throws IOException {
+        Files.writeString(
+                session.invocation().originalFile(),
+                session.result().replacementText(),
+                StandardCharsets.UTF_8
         );
-        Files.writeString(session.invocation().originalFile(), updatedFile, StandardCharsets.UTF_8);
     }
 
     private void notifyUser(String message, int messageType) {
