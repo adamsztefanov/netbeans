@@ -27,6 +27,7 @@ import java.net.ConnectException;
 import java.text.ParseException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -53,6 +54,7 @@ import org.netbeans.modules.nativeexecution.api.util.ConnectionManager.Cancellat
 import org.netbeans.modules.nativeexecution.api.util.HostInfoUtils;
 import org.netbeans.modules.nativeexecution.api.util.PathUtils;
 import org.netbeans.modules.terminal.api.IONotifier;
+import org.netbeans.modules.terminal.api.IOEmulation;
 import org.netbeans.modules.terminal.api.ui.IOTerm;
 import org.netbeans.modules.terminal.api.ui.IOVisibility;
 import org.netbeans.modules.terminal.support.TerminalPinSupport;
@@ -228,7 +230,9 @@ public final class TerminalSupportImpl {
                         }
 
                         hostInfo = HostInfoUtils.getHostInfo(env);
-                        boolean isSupported = PtySupport.isSupportedFor(env);
+                        boolean isWindowsPowerShell = !env.isRemote()
+                                && hostInfo.getOSFamily() == HostInfo.OSFamily.WINDOWS;
+                        boolean isSupported = isWindowsPowerShell || PtySupport.isSupportedFor(env);
                         if (!isSupported) {
                             if (!silentMode) {
                                 String message;
@@ -334,42 +338,93 @@ public final class TerminalSupportImpl {
                         if (shell.endsWith("bash") || shell.endsWith("bash.exe")) { // NOI18N
                             npb.setArguments("--login"); // NOI18N
                         } else if (shell.endsWith("powershell.exe") || shell.endsWith("pwsh.exe")) { // NOI18N
-                             npb.setArguments("-NoLogo"); // NOI18N
+                            if (pwdFlag) {
+                                npb.setArguments("-NoLogo", "-NoExit", "-Command", buildPowerShellBootstrap()); // NOI18N
+                                term.putClientProperty(EXECUTION_ENV_PROPERTY_KEY, ExecutionEnvironmentFactory.toUniqueID(env));
+                            } else {
+                                npb.setArguments("-NoLogo"); // NOI18N
+                            }
                         }
                         
-                        NativeExecutionDescriptor descr;
-                        descr = new NativeExecutionDescriptor().controllable(true).frontWindow(true).inputVisible(true).inputOutput(ioRef.get());
-                        descr.postExecution(() -> {
-                            ioRef.get().closeInputOutput();
-                            support.close(term);
-                        });
-                        NativeExecutionService es = NativeExecutionService.newService(npb, descr, "Terminal Emulator"); // NOI18N
-                        Future<Integer> result = es.run();
-                        // ask terminal to become active
-                        SwingUtilities.invokeLater(this);
-
-                        try {
-                            // if terminal can not be started then ExecutionException should be thrown
-                            // wait one second to see if terminal can not be started. otherwise it's OK to exit by TimeOut
-
-                            // IG: I've increased the timeout from 1 to 10 seconds.
-                            // On slow hosts 1 sec was not enougth to get an error code from the pty
-                            // No work is done after this call, so this change should be safe.
-                            Integer rc = result.get(10, TimeUnit.SECONDS);
-                            if (rc != 0) {
-                                Logger.getLogger(TerminalSupportImpl.class.getName())
-                                        .log(Level.INFO, "{0}{1}", new Object[]{NbBundle.getMessage(TerminalSupportImpl.class, "LOG_ReturnCode"), rc});
+                        if (!env.isRemote() && hostInfo.getOSFamily() == HostInfo.OSFamily.WINDOWS
+                                && (shell.endsWith("powershell.exe") || shell.endsWith("pwsh.exe"))) {
+                            try {
+                                npb.setUsePty(false);
+                                NativeProcess process = npb.call();
+                                IOEmulation.setDisciplined(ioRef.get());
+                                org.netbeans.modules.terminal.api.IOTerm.setReadOnly(ioRef.get(), false);
+                                org.netbeans.modules.terminal.api.IOTerm.connect(ioRef.get(),
+                                        process.getOutputStream(),
+                                        process.getInputStream(),
+                                        process.getErrorStream(),
+                                        null,
+                                        this);
+                                RP.post(() -> {
+                                    try {
+                                        Integer rc = process.waitFor();
+                                        if (rc != 0) {
+                                            Logger.getLogger(TerminalSupportImpl.class.getName())
+                                                    .log(Level.INFO, "{0}{1}", new Object[]{NbBundle.getMessage(TerminalSupportImpl.class, "LOG_ReturnCode"), rc});
+                                        }
+                                    } catch (InterruptedException ex) {
+                                        Exceptions.printStackTrace(ex);
+                                    } finally {
+                                        final CountDownLatch latch = new CountDownLatch(1);
+                                        org.netbeans.modules.terminal.api.IOTerm.disconnect(ioRef.get(), latch::countDown);
+                                        try {
+                                            latch.await(5, TimeUnit.SECONDS);
+                                        } catch (InterruptedException ex) {
+                                            Exceptions.printStackTrace(ex);
+                                        } finally {
+                                            org.netbeans.modules.terminal.api.IOTerm.setReadOnly(ioRef.get(), true);
+                                            ioRef.get().closeInputOutput();
+                                            support.close(term);
+                                        }
+                                    }
+                                });
+                            } catch (IOException ex) {
+                                if (!destroyed.get()) {
+                                    Throwable cause = ex.getCause();
+                                    String error = cause == null ? ex.getMessage() : cause.getMessage();
+                                    String msg = NbBundle.getMessage(TerminalSupportImpl.class, "TerminalAction.FailedToStart.text", error); // NOI18N
+                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                                }
                             }
-                        } catch (TimeoutException ex) {
-                            // we should be there
-                        } catch (InterruptedException ex) {
-                            Exceptions.printStackTrace(ex);
-                        } catch (ExecutionException ex) {
-                            if (!destroyed.get()) {
-                                Throwable cause = ex.getCause();
-                                String error = cause == null ? ex.getMessage() : cause.getMessage();
-                                String msg = NbBundle.getMessage(TerminalSupportImpl.class, "TerminalAction.FailedToStart.text", error); // NOI18N
-                                DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                        } else {
+                            NativeExecutionDescriptor descr;
+                            descr = new NativeExecutionDescriptor().controllable(true).frontWindow(true).inputVisible(true).inputOutput(ioRef.get());
+                            descr.postExecution(() -> {
+                                ioRef.get().closeInputOutput();
+                                support.close(term);
+                            });
+                            NativeExecutionService es = NativeExecutionService.newService(npb, descr, "Terminal Emulator"); // NOI18N
+                            Future<Integer> result = es.run();
+                            // ask terminal to become active
+                            SwingUtilities.invokeLater(this);
+
+                            try {
+                                // if terminal can not be started then ExecutionException should be thrown
+                                // wait one second to see if terminal can not be started. otherwise it's OK to exit by TimeOut
+
+                                // IG: I've increased the timeout from 1 to 10 seconds.
+                                // On slow hosts 1 sec was not enougth to get an error code from the pty
+                                // No work is done after this call, so this change should be safe.
+                                Integer rc = result.get(10, TimeUnit.SECONDS);
+                                if (rc != 0) {
+                                    Logger.getLogger(TerminalSupportImpl.class.getName())
+                                            .log(Level.INFO, "{0}{1}", new Object[]{NbBundle.getMessage(TerminalSupportImpl.class, "LOG_ReturnCode"), rc});
+                                }
+                            } catch (TimeoutException ex) {
+                                // we should be there
+                            } catch (InterruptedException ex) {
+                                Exceptions.printStackTrace(ex);
+                            } catch (ExecutionException ex) {
+                                if (!destroyed.get()) {
+                                    Throwable cause = ex.getCause();
+                                    String error = cause == null ? ex.getMessage() : cause.getMessage();
+                                    String msg = NbBundle.getMessage(TerminalSupportImpl.class, "TerminalAction.FailedToStart.text", error); // NOI18N
+                                    DialogDisplayer.getDefault().notify(new NotifyDescriptor.Message(msg, NotifyDescriptor.ERROR_MESSAGE));
+                                }
                             }
                         }
                     } catch (java.util.concurrent.CancellationException ex) { // VK: don't quite understand who can throw it?
@@ -458,6 +513,24 @@ public final class TerminalSupportImpl {
                 IONotifier.removePropertyChangeListener(io, this);
             }
         }
+    }
+
+    private static String buildPowerShellBootstrap() {
+        return "$global:__nb_old_prompt = $function:prompt;"
+                + "function global:" + IDE_OPEN + " {"
+                + " param([Parameter(ValueFromRemainingArguments=$true)][string[]]$Files);"
+                + " [Console]::Out.Write(\"`e]10;" + COMMAND_PREFIX + IDE_OPEN + " $(($Files) -join ' ')`a\");"
+                + " Write-Host (\"Opening {0} file(s) ...\" -f $Files.Count);"
+                + "};"
+                + "function global:prompt {"
+                + " $pwdPath = (Get-Location).ProviderPath;"
+                + " [Console]::Out.Write(\"`e]3;\" + $pwdPath + \"`a\");"
+                + " if ($global:__nb_old_prompt) {"
+                + "  & $global:__nb_old_prompt"
+                + " } else {"
+                + "  \"PS \" + $pwdPath + \"> \""
+                + " }"
+                + "}";
     }
 
 }

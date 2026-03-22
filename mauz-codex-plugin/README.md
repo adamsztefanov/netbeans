@@ -1,6 +1,6 @@
 # MAUZ Codex NetBeans Plugin
 
-Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` action to the editor popup menu, shows the captured `codex patch` output in a tool window, and can apply the resulting patch back to the original file.
+Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` action to the editor popup menu, runs `codex exec` against the selected code, shows the returned patch output in a tool window, and can apply the resulting patch back to the original file.
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ Standalone Apache NetBeans Ant module project that adds an `Ask MAUZ Codex` acti
 
 - The action is registered in the editor popup using `@ActionID`, `@ActionRegistration`, and `@ActionReference(path = "Editors/Popup")`.
 - The tool window is a `TopComponent` registered in the `output` mode.
-- The CLI command is built in [`CodexCliService.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/org/mauz/netbeans/codex/CodexCliService.java). If your local `codex patch` syntax differs, adjust that command list there.
+- The CLI command is built in [`CodexCliService.java`](/C:/Users/mauz/Repositories/netbeans/mauz-codex-plugin/src/org/mauz/netbeans/codex/CodexCliService.java). If your local `codex exec` syntax or wrapper path differs, adjust that command list there.
 
 ## Example Usage
 

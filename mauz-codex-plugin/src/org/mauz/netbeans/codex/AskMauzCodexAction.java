@@ -3,6 +3,7 @@ package org.mauz.netbeans.codex;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.EditorRegistry;
@@ -42,7 +43,8 @@ import org.openide.util.RequestProcessor;
     "MSG_NoEditor=No active editor was found.",
     "MSG_NoFile=The selected editor content is not backed by a regular file.",
     "MSG_NoSelection=Select some code in the editor before invoking Ask MAUZ Codex.",
-    "MSG_Running=Running Codex patch against the selected code..."
+    "MSG_NoDocument=The editor document could not be read.",
+    "MSG_Running=Running Codex against the current file..."
 })
 public final class AskMauzCodexAction extends AbstractAction implements ContextAwareAction {
 
@@ -73,6 +75,10 @@ public final class AskMauzCodexAction extends AbstractAction implements ContextA
         }
         if (invocation.originalFile() == null) {
             notifyUser(Bundle.MSG_NoFile());
+            return;
+        }
+        if (invocation.documentText() == null) {
+            notifyUser(Bundle.MSG_NoDocument());
             return;
         }
 
@@ -107,6 +113,7 @@ public final class AskMauzCodexAction extends AbstractAction implements ContextA
             JTextComponent editor,
             DataObject dataObject,
             java.nio.file.Path originalFile,
+            String documentText,
             String selectedCode,
             int selectionStart,
             int selectionEnd
@@ -121,7 +128,7 @@ public final class AskMauzCodexAction extends AbstractAction implements ContextA
                 editor = EditorRegistry.lastFocusedComponent();
             }
             if (editor == null) {
-                return new EditorInvocation(null, null, null, null, -1, -1);
+                return new EditorInvocation(null, null, null, null, null, -1, -1);
             }
 
             DataObject dataObject = context.lookup(DataObject.class);
@@ -144,14 +151,16 @@ public final class AskMauzCodexAction extends AbstractAction implements ContextA
                 }
             }
 
-            return new EditorInvocation(
-                    editor,
-                    dataObject,
-                    originalFile,
-                    editor.getSelectedText(),
-                    editor.getSelectionStart(),
-                    editor.getSelectionEnd()
-            );
+            String documentText = null;
+            Document document = editor.getDocument();
+            try {
+                documentText = document.getText(0, document.getLength());
+            } catch (BadLocationException ex) {
+                // Leave the document text null so the caller can report the issue.
+            }
+
+            return new EditorInvocation(editor, dataObject, originalFile, documentText,
+                    editor.getSelectedText(), editor.getSelectionStart(), editor.getSelectionEnd());
         }
     }
 }
