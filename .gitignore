@@ -1,4 +1,5 @@
 /*/build/
+/external/
 **/nbproject/private/
 /*/*/build/
 /*/*/dist/
@@ -17,6 +18,8 @@
 /*/*/external/*.js
 /*/*/external/*.nbm
 /*/*/external/*/**
+/nbbuild/
+/nbbuild/userdir-jediterm-test/
 /nbbuild/installer/jnlp/external/*.zip
 /nbbuild/installer/jnlp/external/*.jar
 /nbbuild/installer/jnlp/external/*.dll
@@ -121,4 +124,8 @@ derby.log
 
 # idea
 .idea
+.nb-buildview
+.nb-build-output
 /sandbox/
+/scratch/
+conpty-terminal/target
