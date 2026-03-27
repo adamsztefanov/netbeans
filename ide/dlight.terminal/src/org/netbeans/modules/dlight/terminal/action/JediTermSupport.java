@@ -37,6 +37,7 @@ import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 import org.netbeans.lib.terminalemulator.support.TermOptions;
 import org.netbeans.modules.dlight.terminal.backend.TerminalBackendFactory;
+import org.netbeans.modules.dlight.terminal.backend.local.LocalConPtyConfig;
 import org.netbeans.modules.dlight.terminal.backend.local.Pty4jTtyConnector;
 import org.netbeans.modules.dlight.terminal.backend.nativeexecution.NativeProcessTtyConnector;
 import org.netbeans.modules.dlight.terminal.backend.ssh.BackendTtyConnector;
@@ -67,13 +68,14 @@ public final class JediTermSupport {
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
     private static final int INITIAL_COLUMNS = 120;
     private static final int INITIAL_ROWS = 35;
+    private static final String WINDOWS_CONPTY_PROPERTY =
+            "org.netbeans.modules.dlight.terminal.local.conpty"; // NOI18N
     private static final String LOCAL_ICON = "org/netbeans/modules/dlight/terminal/action/local_term.svg"; // NOI18N
     private static final String REMOTE_ICON = "org/netbeans/modules/dlight/terminal/action/remote_term.svg"; // NOI18N
     private static final String WINDOWS_PWSH = "C:\\Program Files\\PowerShell\\7\\pwsh.exe"; // NOI18N
     private static final String WINDOWS_POWERSHELL = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"; // NOI18N
     private static final String WINDOWS_GIT_BASH = "C:\\Program Files\\Git\\bin\\bash.exe"; // NOI18N
     private static final String WINDOWS_CMD = "C:\\Windows\\System32\\cmd.exe"; // NOI18N
-    private static final Path WINDOWS_COLORS_SCRIPT = Paths.get("C:\\Scripts\\CustomPowerShellColors.ps1"); // NOI18N
 
     private JediTermSupport() {
     }
@@ -146,6 +148,17 @@ public final class JediTermSupport {
 
     private static TtyConnector createLocalConnector(String dir) throws IOException {
         List<String> command = buildLocalCommand();
+        Path workingDirectory = resolveLocalWorkingDirectory(dir);
+        if (Utilities.isWindows() && isConPtyEnabled()) {
+            try {
+                return new BackendTtyConnector(
+                        FACTORY.createLocalConPtyBackend(new LocalConPtyConfig(command, workingDirectory, INITIAL_COLUMNS, INITIAL_ROWS)),
+                        UTF_8,
+                        "Local"); // NOI18N
+            } catch (IOException | RuntimeException ex) {
+                LOG.log(Level.INFO, "Falling back to Pty4J after ConPTY startup failure", ex); // NOI18N
+            }
+        }
         Map<String, String> environment = new HashMap<>(System.getenv());
         environment.putIfAbsent("TERM", "xterm-256color"); // NOI18N
         if (isBash(command.get(0))) {
@@ -154,13 +167,17 @@ public final class JediTermSupport {
         PtyProcess process = new PtyProcessBuilder()
                 .setCommand(command.toArray(new String[0]))
                 .setEnvironment(environment)
-                .setDirectory(resolveLocalWorkingDirectory(dir).toString())
+                .setDirectory(workingDirectory.toString())
                 .setInitialColumns(INITIAL_COLUMNS)
                 .setInitialRows(INITIAL_ROWS)
                 .setRedirectErrorStream(true)
                 .setWindowsAnsiColorEnabled(true)
                 .start();
         return new Pty4jTtyConnector(process, UTF_8, command);
+    }
+
+    private static boolean isConPtyEnabled() {
+        return Boolean.getBoolean(WINDOWS_CONPTY_PROPERTY);
     }
 
     private static TtyConnector createRemoteConnector(ExecutionEnvironment env, String dir) throws IOException, CancellationException {
@@ -212,6 +229,9 @@ public final class JediTermSupport {
                 command.add("-i"); // NOI18N
             } else if ("pwsh.exe".equals(shellName) || "powershell.exe".equals(shellName)) { // NOI18N
                 command.add("-NoLogo"); // NOI18N
+                command.add("-NoExit"); // NOI18N
+            } else if ("cmd.exe".equals(shellName)) { // NOI18N
+                command.add("/K"); // NOI18N
             }
         } else if ("bash".equals(shellName) || "zsh".equals(shellName)) { // NOI18N
             command.add("-l"); // NOI18N
@@ -229,15 +249,8 @@ public final class JediTermSupport {
         }
         List<String> command = new ArrayList<>();
         command.add(pwsh);
+        command.add("-NoLogo"); // NOI18N
         command.add("-NoExit"); // NOI18N
-        command.add("-ExecutionPolicy"); // NOI18N
-        command.add("Bypass"); // NOI18N
-        if (Files.isRegularFile(WINDOWS_COLORS_SCRIPT)) {
-            command.add("-File"); // NOI18N
-            command.add(WINDOWS_COLORS_SCRIPT.toString());
-        } else {
-            command.add("-NoLogo"); // NOI18N
-        }
         return command;
     }
 

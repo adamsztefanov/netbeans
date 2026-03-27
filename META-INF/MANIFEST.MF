@@ -1,0 +1,39 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.15
+Created-By: 25.0.1+8-LTS (Amazon.com Inc.)
+OpenIDE-Module-Public-Packages: org.netbeans.modules.dlight.api.termin
+ al.*
+OpenIDE-Module-Friends: com.oracle.tools.ide.projectless.impl, com.sun
+ .tools.cnd.accessor, com.sun.tools.dlight.accessor, com.sun.tools.ide
+ .analysis.analytics, com.sun.tools.ide.analysis.common, com.sun.tools
+ .ide.analysis.discover, com.sun.tools.ide.analysis.previse, com.sun.t
+ ools.ide.analysis.tha, org.netbeans.modules.cnd.makeproject, org.netb
+ eans.modules.cnd.makeproject.ui, org.netbeans.modules.cnd.remote, org
+ .netbeans.modules.cnd.remote.ui
+OpenIDE-Module-Module-Dependencies: org.netbeans.lib.terminalemulator 
+ > 1.11, org.netbeans.modules.dlight.nativeexecution > 1.10.3, org.net
+ beans.modules.options.api/1 > 1.41, org.netbeans.modules.settings/1 >
+  1.25, org.netbeans.modules.terminal > 1.26.2, org.netbeans.modules.t
+ erminal.nb > 1.0, org.netbeans.libs.jna/2 > 2.0, org.netbeans.libs.jn
+ a.platform/2 > 2.0, org.openide.awt > 7.21, org.openide.dialogs > 7.1
+ 4, org.openide.filesystems > 8.13, org.openide.filesystems.compat8 > 
+ 9.0, org.openide.filesystems.nb > 9.0, org.openide.io > 1.21, org.ope
+ nide.loaders > 7.61, org.openide.nodes > 7.40, org.openide.util > 9.3
+ , org.openide.util.lookup > 8.2, org.openide.util.ui > 9.3, org.openi
+ de.windows > 6.32
+OpenIDE-Module-Java-Dependencies: Java > 17
+OpenIDE-Module-Build-Version: dev-18d6d3383eb4b0db437b826c03075ac377e0
+ a613
+OpenIDE-Module-Specification-Version: 1.56.0.1
+AutoUpdate-Show-In-Client: false
+OpenIDE-Module: org.netbeans.modules.dlight.terminal
+OpenIDE-Module-Implementation-Version: 1
+OpenIDE-Module-Layer: org/netbeans/modules/dlight/terminal/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/netbeans/modules/dlight/terminal
+ /Bundle.properties
+OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1
+Class-Path: ext/slf4j-api-1.7.36.jar ext/eddsa-0.3.0.jar ext/sshd-comm
+ on-2.12.1.jar ext/sshd-core-2.12.1.jar ext/sshd-sftp-2.12.1.jar ext/j
+ editerm-core-3.54.jar ext/jediterm-ui-3.54.jar ext/pty4j-0.13.4.jar e
+ xt/kotlin-stdlib-2.1.21.jar ext/annotations-24.0.1.jar
+

@@ -22,4 +22,22 @@
 <project basedir="." default="build" name="ide/dlight.terminal">
     <description>Builds, tests, and runs the project org.netbeans.modules.dlight.terminal</description>
     <import file="../../nbbuild/templates/projectized.xml"/>
+
+    <target name="netbeans-extra" depends="release">
+        <mkdir dir="${cluster}/modules/ext"/>
+        <copy todir="${cluster}/modules/ext">
+            <fileset dir="external">
+                <include name="annotations-24.0.1.jar"/>
+                <include name="eddsa-0.3.0.jar"/>
+                <include name="jediterm-core-3.54.jar"/>
+                <include name="jediterm-ui-3.54.jar"/>
+                <include name="kotlin-stdlib-2.1.21.jar"/>
+                <include name="pty4j-0.13.4.jar"/>
+                <include name="slf4j-api-1.7.36.jar"/>
+                <include name="sshd-common-2.12.1.jar"/>
+                <include name="sshd-core-2.12.1.jar"/>
+                <include name="sshd-sftp-2.12.1.jar"/>
+            </fileset>
+        </copy>
+    </target>
 </project>
