@@ -79,7 +79,7 @@ public final class CodexPatchTopComponent extends TopComponent {
         outputArea.setEditable(false);
         outputArea.setLineWrap(false);
         outputArea.setWrapStyleWord(false);
-        outputArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        outputArea.setFont(new Font("Hermit Light", Font.PLAIN, 14));
         add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
         applyPatchButton.setEnabled(false);

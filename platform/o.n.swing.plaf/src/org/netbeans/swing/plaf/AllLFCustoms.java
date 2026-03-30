@@ -76,6 +76,7 @@ final class AllLFCustoms extends LFCustoms {
         ColorUIResource errorColor = new ColorUIResource (255, 0, 0);
         //#204598 - there's no cross-platform warning-like color...
         ColorUIResource warningColor = new ColorUIResource(51 , 51, 51);
+        String customFontFamily = getCustomFontFamily();
 
         int fontsize = 11;
         Integer in = (Integer) UIManager.get(CUSTOM_FONT_SIZE); //NOI18N
@@ -91,7 +92,7 @@ final class AllLFCustoms extends LFCustoms {
             "controlDkShadow", new GuaranteedValue ("controlDkShadow", Color.DARK_GRAY),
             "textText", new GuaranteedValue ("textText", Color.BLACK),
             "controlFont", new GuaranteedValue ("controlFont",
-                new Font ("Dialog", Font.PLAIN, fontsize)),
+                createCompositeFont(customFontFamily != null ? customFontFamily : "Dialog", Font.PLAIN, fontsize)),
             
             DEFAULT_FONT_SIZE, 11,
             ERROR_FOREGROUND, new GuaranteedValue(ERROR_FOREGROUND, errorColor),
@@ -103,11 +104,12 @@ final class AllLFCustoms extends LFCustoms {
     }
 
     public static void initCustomFontSize (int uiFontSize) {
-        Font nbDialogPlain = new FontUIResource("Dialog", Font.PLAIN, uiFontSize); // NOI18N
-        Font nbDialogBold = new FontUIResource("Dialog", Font.BOLD, uiFontSize); // NOI18N
-        Font nbSerifPlain = new FontUIResource("Serif", Font.PLAIN, uiFontSize); // NOI18N
-        Font nbSansSerifPlain = new FontUIResource("SansSerif", Font.PLAIN, uiFontSize); // NOI18N
-        Font nbMonospacedPlain = new FontUIResource("Monospaced", Font.PLAIN, uiFontSize); // NOI18N
+        String customFontFamily = getCustomFontFamily();
+        Font nbDialogPlain = createCompositeFont(customFontFamily != null ? customFontFamily : "Dialog", Font.PLAIN, uiFontSize); // NOI18N
+        Font nbDialogBold = createCompositeFont(customFontFamily != null ? customFontFamily : "Dialog", Font.BOLD, uiFontSize); // NOI18N
+        Font nbSerifPlain = createCompositeFont(customFontFamily != null ? customFontFamily : "Serif", Font.PLAIN, uiFontSize); // NOI18N
+        Font nbSansSerifPlain = createCompositeFont(customFontFamily != null ? customFontFamily : "SansSerif", Font.PLAIN, uiFontSize); // NOI18N
+        Font nbMonospacedPlain = createCompositeFont(customFontFamily != null ? customFontFamily : "Monospaced", Font.PLAIN, uiFontSize); // NOI18N
         
         Map<Font, Font> fontTranslation = new HashMap<Font, Font>(5);
         
@@ -164,9 +166,12 @@ final class AllLFCustoms extends LFCustoms {
     
     private static void switchFont( String uiKey, Map<Font, Font> fontTranslation, int uiFontSize, Font defaultFont ) {
         Font oldFont = UIManager.getFont(uiKey);
+        String customFontFamily = getCustomFontFamily();
         Font newFont = (null == oldFont || isMetal) ? defaultFont : fontTranslation.get(oldFont);
         if( null == newFont ) {
-            if( isWindows ) {
+            if( customFontFamily != null ) {
+                newFont = createCompositeFont(customFontFamily, oldFont.getStyle(), uiFontSize);
+            } else if( isWindows ) {
                 newFont = oldFont.deriveFont( (float)uiFontSize );
             } else {
                 newFont = new FontUIResource( oldFont.getFontName(), oldFont.getStyle(), uiFontSize );

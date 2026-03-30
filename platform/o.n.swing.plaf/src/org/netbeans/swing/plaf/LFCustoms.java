@@ -20,9 +20,12 @@
 package org.netbeans.swing.plaf;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.util.logging.Logger;
 import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 import javax.swing.text.AttributeSet;
+import javax.swing.text.StyleContext;
 
 /** Look and feel customizations interface.
  * For various look and feels, there is a need to customize colors,
@@ -312,6 +315,7 @@ public abstract class LFCustoms {
      * custom font size is specified, the core will put this into UIDefaults.
      * We then read it out if present and use it to set up a custom font size. */
     protected static final String CUSTOM_FONT_SIZE = "customFontSize"; //NOI18N
+    protected static final String CUSTOM_FONT_FAMILY = "customFontFamily"; //NOI18N
     
     //Default font size - some classes use this to handle creating appropriate
     //custom fonts based on this value
@@ -443,4 +447,20 @@ public abstract class LFCustoms {
     public static final String FILECHOOSER_SHORTCUTS_FILESFUNCTION = "FileChooser.shortcuts.filesFunction";
     public static final String FILECHOOSER_SHORTCUTS_PANEL_FACTORY = "FileChooser.shortcuts.panel.factory";
     public static final String FILECHOOSER_FAVORITES_ENABLED = "FileChooser.favorites.enabled";
+
+    protected static String getCustomFontFamily() {
+        Object customFontFamily = UIManager.get(CUSTOM_FONT_FAMILY);
+        if (customFontFamily instanceof String family) {
+            String trimmed = family.trim();
+            if (!trimmed.isEmpty()) {
+                return trimmed;
+            }
+        }
+        return null;
+    }
+
+    protected static FontUIResource createCompositeFont(String family, int style, int size) {
+        Font font = StyleContext.getDefaultStyleContext().getFont(family, style, size);
+        return (font instanceof FontUIResource) ? (FontUIResource) font : new FontUIResource(font);
+    }
 }

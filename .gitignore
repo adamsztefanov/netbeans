@@ -129,3 +129,10 @@ derby.log
 /sandbox/
 /scratch/
 conpty-terminal/target
+
+# Local build and run artifacts
+/ant-build*.log
+/tryme-ant-*.log
+/*-userdir/
+/tmp-nb-terminal-deps-pom.xml
+/discoclient.properties

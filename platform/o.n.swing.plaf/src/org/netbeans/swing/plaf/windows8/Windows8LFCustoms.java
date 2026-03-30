@@ -34,8 +34,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.text.StyleContext;
 import org.netbeans.swing.plaf.LFCustoms;
 import org.netbeans.swing.plaf.util.UIBootstrapValue;
 import org.netbeans.swing.plaf.util.UIUtils;
@@ -109,15 +107,6 @@ public final class Windows8LFCustoms extends LFCustoms {
         "ColorChooser.font"
     }; //NOI18N
 
-    // Copied from com.formdev.flatlaf.FlatLAF.createCompositeFont.
-    private static FontUIResource createCompositeFont(String family, int style, int size) {
-      // using StyleContext.getFont() here because it uses
-      // sun.font.FontUtilities.getCompositeFontUIResource()
-      // and creates a composite font that is able to display all Unicode characters
-      Font font = StyleContext.getDefaultStyleContext().getFont(family, style, size);
-      return (font instanceof FontUIResource) ? (FontUIResource) font : new FontUIResource(font);
-    }
-
     final Color TAB_CONTENT_BORDER_COLOR = new Color(156, 156, 156);
 
     @Override
@@ -166,6 +155,10 @@ public final class Windows8LFCustoms extends LFCustoms {
             if (messageBoxFont instanceof Font) {
                 fontSize = ((Font) messageBoxFont).getSize();
                 fontFamily = ((Font) messageBoxFont).getFamily();
+            }
+            String customFontFamily = getCustomFontFamily();
+            if (customFontFamily != null) {
+                fontFamily = customFontFamily;
             }
             Object customFontSize = UIManager.get(CUSTOM_FONT_SIZE); //NOI18N
             if (customFontSize instanceof Integer) {

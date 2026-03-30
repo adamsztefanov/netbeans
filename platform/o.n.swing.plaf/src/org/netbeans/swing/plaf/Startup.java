@@ -533,6 +533,13 @@ public final class Startup {
      */
     public static void run (Class uiClass, int uiFontSize, URL themeURL, ResourceBundle rb) {
         if (instance == null) {
+            String customFontFamily = System.getProperty("netbeans.system.font.family"); // NOI18N
+            if (customFontFamily != null) {
+                customFontFamily = customFontFamily.trim();
+                if (!customFontFamily.isEmpty()) {
+                    UIManager.put(LFCustoms.CUSTOM_FONT_FAMILY, customFontFamily);
+                }
+            }
           // Modify default font size to the font size passed as a command-line parameter
             if(uiFontSize>0) {
                 Integer customFontSize = Integer.valueOf(uiFontSize);
