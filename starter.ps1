@@ -95,7 +95,8 @@ try {
     $startupArgs = @(
         "--userdir", $UserDir,
         "--fontsize", "13",
-        "-J-Dnetbeans.system.font.family=Hermit Light",
+        "-J-Dnetbeans.system.font.family=Hermit",
+        "-J-Dnetbeans.system.font.file=C:\\Windows\\Fonts\\Hermit-Regular.otf",
         "-J-Dnetbeans.full.hack=true"
     )
 

@@ -1201,6 +1201,13 @@ It is possible to use -Ddebug.port=3234 -Ddebug.pause=y to start the system in d
       <available file="${netbeans.dest.dir}/nb/.lastModified" />
     </condition>
     <property name="run.args.ide" value=""/>
+    <property name="run.args.ide.font" value="--fontsize 13 -J-Dnetbeans.system.font.family=Hermit -J-Dnetbeans.system.font.file=C:\Windows\Fonts\Hermit-Regular.otf"/>
+    <condition property="run.args.ide.effective" value="${run.args.ide} ${run.args.ide.font}" else="${run.args.ide.font}">
+      <and>
+        <isset property="run.args.ide"/>
+        <length string="${run.args.ide}" when="greater" length="0"/>
+      </and>
+    </condition>
     <exec osfamily="windows" executable="${tryme.launcher.prefix}${jvm.arch.string}.exe" failonerror="yes" dir="${java.io.tmpdir}">
       <arg value="--jdkhome"/>
       <arg file="${tryme.jdkhome}"/>
@@ -1208,7 +1215,7 @@ It is possible to use -Ddebug.port=3234 -Ddebug.pause=y to start the system in d
       <arg file="${test.user.dir}"/>
       <arg line="${tryme.args}"/>
       <arg line="${tryme.debug.args}" />
-      <arg line="${run.args.ide}"/>
+      <arg line="${run.args.ide.effective}"/>
     </exec>
     <exec osfamily="unix" executable="sh" failonerror="yes" dir="${java.io.tmpdir}">
       <arg value="${tryme.launcher.prefix}"/>
@@ -1218,7 +1225,7 @@ It is possible to use -Ddebug.port=3234 -Ddebug.pause=y to start the system in d
       <arg file="${test.user.dir}"/>
       <arg line="${tryme.args}"/>
       <arg line="${tryme.debug.args}" />
-      <arg line="${run.args.ide}"/>
+      <arg line="${run.args.ide.effective}"/>
       <env key="DISPLAY" value="${run.env.display}"/>
     </exec>
   </target>

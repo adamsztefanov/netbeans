@@ -19,7 +19,12 @@
 
 package org.netbeans.swing.plaf;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 import org.netbeans.swing.plaf.aqua.AquaLFCustoms;
 import org.netbeans.swing.plaf.gtk.GtkLFCustoms;
@@ -55,6 +60,8 @@ import org.netbeans.swing.plaf.winxp.XPLFCustoms;
  */
 public final class Startup {
     //originally LFCustomsManager
+
+    private static final String CUSTOM_FONT_FILE = "netbeans.system.font.file"; // NOI18N
 
     /** For debugging purposes, enable forcing the customizations for, i.e.,
      * Windows look and feel on a platform that doesn't support it */
@@ -537,6 +544,7 @@ public final class Startup {
             if (customFontFamily != null) {
                 customFontFamily = customFontFamily.trim();
                 if (!customFontFamily.isEmpty()) {
+                    registerCustomFont(customFontFamily);
                     UIManager.put(LFCustoms.CUSTOM_FONT_FAMILY, customFontFamily);
                 }
             }
@@ -551,6 +559,54 @@ public final class Startup {
             instance = new Startup();
             instance.install();
         }
+    }
+
+    private static void registerCustomFont(String customFontFamily) {
+        if (isFontFamilyAvailable(customFontFamily)) {
+            Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                    "Custom font family already available: {0}", customFontFamily);
+            return;
+        }
+
+        String customFontFile = System.getProperty(CUSTOM_FONT_FILE);
+        if (customFontFile == null || customFontFile.isBlank()) {
+            Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                    "Custom font family {0} requested without netbeans.system.font.file", customFontFamily);
+            return;
+        }
+
+        File fontFile = new File(customFontFile);
+        if (!fontFile.isFile()) {
+            Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                    "Configured custom font file does not exist: {0}", fontFile);
+            return;
+        }
+
+        try {
+            Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
+            GraphicsEnvironment.getLocalGraphicsEnvironment().registerFont(font);
+            Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                    "Registered custom font from file {0} as {1}/{2}",
+                    new Object[] { fontFile, font.getFamily(), font.getFontName() });
+            if (!isFontFamilyAvailable(customFontFamily)) {
+                Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                        "Registered font file {0}, but family {1} is still unavailable; loaded font name is {2}",
+                        new Object[] { fontFile, customFontFamily, font.getFontName() });
+            }
+        } catch (FontFormatException | IOException ex) {
+            Logger.getLogger(Startup.class.getName()).log(Level.INFO,
+                    "Failed to register custom font file " + fontFile, ex);
+        }
+    }
+
+    private static boolean isFontFamilyAvailable(String customFontFamily) {
+        String[] families = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+        for (String family : families) {
+            if (customFontFamily.equalsIgnoreCase(family)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean isWindows() {

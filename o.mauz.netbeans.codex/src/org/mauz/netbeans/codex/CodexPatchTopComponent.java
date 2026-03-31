@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.awt.ActionID;
@@ -79,7 +80,10 @@ public final class CodexPatchTopComponent extends TopComponent {
         outputArea.setEditable(false);
         outputArea.setLineWrap(false);
         outputArea.setWrapStyleWord(false);
-        outputArea.setFont(new Font("Hermit Light", Font.PLAIN, 14));
+        Font outputFont = UIManager.getFont("controlFont");
+        if (outputFont != null) {
+            outputArea.setFont(outputFont);
+        }
         add(new JScrollPane(outputArea), BorderLayout.CENTER);
 
         applyPatchButton.setEnabled(false);
