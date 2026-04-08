@@ -20,10 +20,12 @@ package org.netbeans.modules.dlight.terminal.backend.nativeexecution;
 
 import com.jediterm.core.util.TermSize;
 import com.jediterm.terminal.ProcessTtyConnector;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.netbeans.modules.dlight.terminal.backend.TerminalGlyphNormalizer;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.nativeexecution.api.NativeProcess;
 
@@ -47,6 +49,13 @@ public final class NativeProcessTtyConnector extends ProcessTtyConnector {
         this.env = env;
         this.tty = tty;
         this.name = name;
+    }
+
+    @Override
+    public int read(char[] buf, int offset, int length) throws IOException {
+        int read = super.read(buf, offset, length);
+        TerminalGlyphNormalizer.normalize(buf, offset, read);
+        return read;
     }
 
     @Override

@@ -22,8 +22,10 @@ import com.jediterm.core.util.TermSize;
 import com.jediterm.terminal.ProcessTtyConnector;
 import com.pty4j.PtyProcess;
 import com.pty4j.WinSize;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
+import org.netbeans.modules.dlight.terminal.backend.TerminalGlyphNormalizer;
 
 /**
  * Small Pty4J bridge for JediTerm.
@@ -35,6 +37,13 @@ public final class Pty4jTtyConnector extends ProcessTtyConnector {
     public Pty4jTtyConnector(PtyProcess process, Charset charset, List<String> commandLine) {
         super(process, charset, commandLine);
         this.process = process;
+    }
+
+    @Override
+    public int read(char[] buf, int offset, int length) throws IOException {
+        int read = super.read(buf, offset, length);
+        TerminalGlyphNormalizer.normalize(buf, offset, read);
+        return read;
     }
 
     @Override

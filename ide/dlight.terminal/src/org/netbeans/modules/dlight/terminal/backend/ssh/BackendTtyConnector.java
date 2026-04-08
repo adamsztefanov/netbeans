@@ -27,6 +27,7 @@ import java.io.PipedOutputStream;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.netbeans.modules.dlight.terminal.backend.TerminalGlyphNormalizer;
 import org.netbeans.modules.dlight.terminal.backend.TerminalBackend;
 
 /**
@@ -61,7 +62,9 @@ public final class BackendTtyConnector implements TtyConnector {
 
     @Override
     public int read(char[] buf, int offset, int length) throws IOException {
-        return reader.read(buf, offset, length);
+        int read = reader.read(buf, offset, length);
+        TerminalGlyphNormalizer.normalize(buf, offset, read);
+        return read;
     }
 
     @Override

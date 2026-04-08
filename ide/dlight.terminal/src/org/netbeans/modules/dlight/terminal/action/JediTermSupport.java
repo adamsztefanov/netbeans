@@ -123,10 +123,11 @@ public final class JediTermSupport {
     }
 
     private static void addTab(IOContainer ioContainer, String tabTitle, Icon icon, TtyConnector connector) {
-        JediTermTab tab = new JediTermTab(ioContainer, tabTitle, connector);
+        String runtimeTitle = tabTitle + " [JT]"; // NOI18N
+        JediTermTab tab = new JediTermTab(ioContainer, runtimeTitle, connector);
         ioContainer.add(tab, tab);
-        ioContainer.setTitle(tab, tabTitle);
-        ioContainer.setToolTipText(tab, tabTitle);
+        ioContainer.setTitle(tab, runtimeTitle);
+        ioContainer.setToolTipText(tab, runtimeTitle);
         if (icon != null) {
             ioContainer.setIcon(tab, icon);
         }
